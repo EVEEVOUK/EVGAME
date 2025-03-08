@@ -1,19 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>EVEEVO RACE GAME</title>
-  <!-- Load p5.js library -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EVEEVO Race Game</title>
   <script src="https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.js"></script>
-  <!-- Load Supabase UMD module -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="sketch.js"></script>
   <style>
     body {
       margin: 0;
+      padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      background: #333;
+      min-height: 100vh;
+      background-color: #333;
     }
     canvas {
       display: block;
@@ -21,7 +23,5 @@
   </style>
 </head>
 <body>
-  <!-- Load the game script -->
-  <script src="sketch.js" defer></script>
 </body>
 </html>
