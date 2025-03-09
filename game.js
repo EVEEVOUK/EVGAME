@@ -213,12 +213,11 @@ function spawnItems() {
     else if (r < 0.6) obstacles.push({ x: lane, y: -50, type: "iceCar", iceSpeed: random(3, 6) });
     else if (r < 0.65) obstacles.push({ x: lane, y: -50, type: "deer" });
     else if (r < 0.7) obstacles.push({ x: lane, y: -50, type: "sheep" });
-    else if (r < 0.75) obstacles.push({ x: lane, y: -50, type: "cow" });
-    else if (r < 0.8) obstacles.push({ x: lane, y: -50, type: "fallenTree" });
-    else if (r < 0.85) obstacles.push({ x: lane, y: -50, type: "debris" });
-    else if (r < 0.9) stations.push({ x: lane, y: -50 });
-    else if (r < 0.96) boosts.push({ x: lane, y: -50 });
-    else superStations.push({ x: lane, y: -50 });
+    else if (r < 0.75) obstacles.push({ x: lane, y: -50, type: "cow" }); // Obstacles end at 70%
+    else if (r < 0.85) stations.push({ x: lane, y: -50 }); // Regular stations: 10% (0.75–0.85)
+    else if (r < 0.88) boosts.push({ x: lane, y: -50 }); // Boosts: 3% (0.85–0.88)
+    else if (r < 0.96) superStations.push({ x: lane, y: -50 }); // Super stations: 8% (0.88–0.96)
+    else boosts.push({ x: lane, y: -50 }); // Boosts: 4% (0.96–1.0)
   }
 }
 
