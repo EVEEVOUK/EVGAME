@@ -7,7 +7,7 @@ let battery = 100;
 let speed = 6;
 let score = 0;
 let combo = 0;
-let gameState = "start";
+let gameState = "playing"; // Changed to auto-start
 let highScore = 0;
 let roadOffset = 0;
 let shield = false;
@@ -34,9 +34,7 @@ function windowResized() {
 function draw() {
   background(50);
   
-  if (gameState === "start") {
-    drawStartScreen();
-  } else if (gameState === "playing") {
+  if (gameState === "playing") {
     playGame();
   } else if (gameState === "gameover") {
     drawGameOverScreen();
@@ -63,16 +61,6 @@ function resetGame() {
   if (highScore >= 5000) evColor = [0, 0, 255];
   else if (highScore >= 2000) evColor = [255, 0, 0];
   else evColor = [0, 200, 0];
-}
-
-function drawStartScreen() {
-  fill(255);
-  textSize(width * 0.06);
-  textAlign(CENTER, CENTER);
-  text("EVEEVO RACE GAME", width / 2, height / 2 - height * 0.1);
-  textSize(width * 0.04);
-  text("Press 'Start' (S) to Begin", width / 2, height / 2 + height * 0.05);
-  text("Dodge obstacles, overtake ICE cars, and charge your EV!", width / 2, height / 2 + height * 0.15);
 }
 
 function drawGameOverScreen() {
@@ -116,9 +104,13 @@ function drawGameOverScreen() {
     text("Opening eveevo.co.uk...", width / 2, height / 2 + height * 0.35);
   }
 
+  // Restart Button for iPhone
+  fill(255, 165, 0); // Orange button
+  rect(width / 2 - 75, height / 2 + height * 0.45 - 25, 150, 50, 10); // Touch-friendly size
   fill(255);
   textSize(width * 0.04);
-  text("Press 'Restart' (R) to Play Again", width / 2, height / 2 + height * 0.45);
+  text("Restart", width / 2, height / 2 + height * 0.45);
+
   if (score >= 2000 && score < 5000) text("Red EV Unlocked!", width / 2, height / 2 + height * 0.52);
   if (score >= 5000) text("Blue EV Unlocked!", width / 2, height / 2 + height * 0.52);
 }
@@ -198,13 +190,14 @@ function updatePlayer() {
   }
   playerX = constrain(playerX, width * 0.05, width * 0.95);
   drawPlayer(playerX, playerY);
-  battery -= 0.015 * speed; // Reduced from 0.03 to 0.015
+  battery -= 0.015 * speed;
 }
 
 function spawnItems() {
   if (frameCount % 45 === 0) {
     let lane = random([width / 6, width / 2, (width * 5) / 6]);
     let r = random();
+    // Adjusted probabilities: more chargers, fewer obstacles
     if (r < 0.1) obstacles.push({ x: lane, y: -50, type: "roadWorkBarrier" });
     else if (r < 0.2) obstacles.push({ x: lane, y: -50, type: "trafficBarrel" });
     else if (r < 0.3) obstacles.push({ x: lane, y: -50, type: "sign" });
@@ -213,11 +206,10 @@ function spawnItems() {
     else if (r < 0.6) obstacles.push({ x: lane, y: -50, type: "iceCar", iceSpeed: random(3, 6) });
     else if (r < 0.65) obstacles.push({ x: lane, y: -50, type: "deer" });
     else if (r < 0.7) obstacles.push({ x: lane, y: -50, type: "sheep" });
-    else if (r < 0.75) obstacles.push({ x: lane, y: -50, type: "cow" }); // Obstacles end at 70%
-    else if (r < 0.85) stations.push({ x: lane, y: -50 }); // Regular stations: 10% (0.75–0.85)
-    else if (r < 0.88) boosts.push({ x: lane, y: -50 }); // Boosts: 3% (0.85–0.88)
-    else if (r < 0.96) superStations.push({ x: lane, y: -50 }); // Super stations: 8% (0.88–0.96)
-    else boosts.push({ x: lane, y: -50 }); // Boosts: 4% (0.96–1.0)
+    else if (r < 0.75) obstacles.push({ x: lane, y: -50, type: "cow" }); // Obstacles end at 75% (was 85%)
+    else if (r < 0.85) stations.push({ x: lane, y: -50 }); // Regular stations: 10% (was 5%)
+    else if (r < 0.90) boosts.push({ x: lane, y: -50 }); // Boosts: 5% (was 6%)
+    else superStations.push({ x: lane, y: -50 }); // Super stations: 10% (was 4%)
   }
 }
 
@@ -531,11 +523,6 @@ function saveEmailToFile(email) {
 }
 
 function keyPressed() {
-  if (key === "s" && gameState === "start") gameState = "playing";
-  if (key === "r" && gameState === "gameover") {
-    resetGame();
-    gameState = "playing";
-  }
   if (gameState === "gameover" && !emailSubmitted) {
     if (keyCode === BACKSPACE && emailInput.length > 0) {
       emailInput = emailInput.substring(0, emailInput.length - 1);
@@ -566,6 +553,15 @@ function mousePressed() {
         !downloadClicked) {
       downloadClicked = true;
       window.open("https://www.eveevo.co.uk", "_blank");
+    }
+    
+    // Restart Button Logic
+    let restartX = width / 2 - 75;
+    let restartY = height / 2 + height * 0.45 - 25;
+    if (mouseX > restartX && mouseX < restartX + 150 &&
+        mouseY > restartY && mouseY < restartY + 50) {
+      resetGame();
+      gameState = "playing";
     }
   }
 }
