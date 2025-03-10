@@ -7,7 +7,7 @@ let battery = 100;
 let speed = 6;
 let score = 0;
 let combo = 0;
-let gameState = "playing"; // Changed to auto-start
+let gameState = "playing";
 let highScore = 0;
 let roadOffset = 0;
 let shield = false;
@@ -104,9 +104,8 @@ function drawGameOverScreen() {
     text("Opening eveevo.co.uk...", width / 2, height / 2 + height * 0.35);
   }
 
-  // Restart Button for iPhone
-  fill(255, 165, 0); // Orange button
-  rect(width / 2 - 75, height / 2 + height * 0.45 - 25, 150, 50, 10); // Touch-friendly size
+  fill(255, 165, 0);
+  rect(width / 2 - 75, height / 2 + height * 0.45 - 25, 150, 50, 10);
   fill(255);
   textSize(width * 0.04);
   text("Restart", width / 2, height / 2 + height * 0.45);
@@ -182,12 +181,16 @@ function drawPlayer(x, y) {
 }
 
 function updatePlayer() {
+  // Keyboard controls for desktop
   if (keyIsDown(LEFT_ARROW)) playerX -= 5;
   if (keyIsDown(RIGHT_ARROW)) playerX += 5;
+
+  // Slip effect (applies to both input methods)
   if (slipTimer > 0) {
     playerX += random(-5, 5);
     slipTimer--;
   }
+  
   playerX = constrain(playerX, width * 0.05, width * 0.95);
   drawPlayer(playerX, playerY);
   battery -= 0.015 * speed;
@@ -197,7 +200,6 @@ function spawnItems() {
   if (frameCount % 45 === 0) {
     let lane = random([width / 6, width / 2, (width * 5) / 6]);
     let r = random();
-    // Adjusted probabilities: more chargers, fewer obstacles
     if (r < 0.1) obstacles.push({ x: lane, y: -50, type: "roadWorkBarrier" });
     else if (r < 0.2) obstacles.push({ x: lane, y: -50, type: "trafficBarrel" });
     else if (r < 0.3) obstacles.push({ x: lane, y: -50, type: "sign" });
@@ -206,10 +208,10 @@ function spawnItems() {
     else if (r < 0.6) obstacles.push({ x: lane, y: -50, type: "iceCar", iceSpeed: random(3, 6) });
     else if (r < 0.65) obstacles.push({ x: lane, y: -50, type: "deer" });
     else if (r < 0.7) obstacles.push({ x: lane, y: -50, type: "sheep" });
-    else if (r < 0.75) obstacles.push({ x: lane, y: -50, type: "cow" }); // Obstacles end at 75% (was 85%)
-    else if (r < 0.85) stations.push({ x: lane, y: -50 }); // Regular stations: 10% (was 5%)
-    else if (r < 0.90) boosts.push({ x: lane, y: -50 }); // Boosts: 5% (was 6%)
-    else superStations.push({ x: lane, y: -50 }); // Super stations: 10% (was 4%)
+    else if (r < 0.75) obstacles.push({ x: lane, y: -50, type: "cow" });
+    else if (r < 0.85) stations.push({ x: lane, y: -50 });
+    else if (r < 0.90) boosts.push({ x: lane, y: -50 });
+    else superStations.push({ x: lane, y: -50 });
   }
 }
 
@@ -536,32 +538,43 @@ function keyPressed() {
 }
 
 function mousePressed() {
-  if (gameState === "gameover") {
+  if (gameState === "playing") {
+    // iPhone touch controls: Snap to lanes
+    if (mouseX < width / 2) {
+      if (playerX > width / 2) playerX = width / 6; // Right to center
+      else if (playerX > width / 6) playerX = width / 6; // Center to left
+    } else {
+      if (playerX < width / 2) playerX = (width * 5) / 6; // Left to center
+      else if (playerX < (width * 5) / 6) playerX = (width * 5) / 6; // Center to right
+    }
+  } else if (gameState === "gameover") {
+    // Game-over screen interactions
+    let restartX = width / 2 - 75;
+    let restartY = height / 2 + height * 0.45 - 25;
+    if (mouseX >= restartX && mouseX <= restartX + 150 &&
+        mouseY >= restartY && mouseY <= restartY + 50) {
+      resetGame();
+      gameState = "playing";
+      return;
+    }
+
     let submitX = width / 2 - width * 0.05;
     let submitY = height / 2 + height * 0.075;
-    if (mouseX > submitX && mouseX < submitX + width * 0.1 &&
-        mouseY > submitY && mouseY < submitY + height * 0.05 &&
+    if (mouseX >= submitX && mouseX <= submitX + width * 0.1 &&
+        mouseY >= submitY && mouseY <= submitY + height * 0.05 &&
         emailInput.length > 0 && !emailSubmitted) {
       emailSubmitted = true;
       saveEmailToFile(emailInput);
+      return;
     }
     
     let linkX = width / 2 - width * 0.1;
     let linkY = height / 2 + height * 0.28 - height * 0.02;
-    if (mouseX > linkX && mouseX < linkX + width * 0.2 &&
-        mouseY > linkY && mouseY < linkY + height * 0.04 &&
+    if (mouseX >= linkX && mouseX <= linkX + width * 0.2 &&
+        mouseY >= linkY && mouseY <= linkY + height * 0.04 &&
         !downloadClicked) {
       downloadClicked = true;
       window.open("https://www.eveevo.co.uk", "_blank");
-    }
-    
-    // Restart Button Logic
-    let restartX = width / 2 - 75;
-    let restartY = height / 2 + height * 0.45 - 25;
-    if (mouseX > restartX && mouseX < restartX + 150 &&
-        mouseY > restartY && mouseY < restartY + 50) {
-      resetGame();
-      gameState = "playing";
     }
   }
 }
